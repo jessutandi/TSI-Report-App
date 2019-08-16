@@ -1,0 +1,7 @@
+(rpr, bldg_num, zone, equip) => do
+  building = bldg_num.padl(2, "0")  
+  if (read(siteRef and dis==building, false) != null) do
+    transferRoomPressureReport(rpr, zoneId, equipId)
+  end
+end
+

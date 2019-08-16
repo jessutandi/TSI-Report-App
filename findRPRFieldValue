@@ -1,0 +1,14 @@
+/* This function is to check for empty fields in the Room Pressure Reports,
+  and if it is empty, return an empty string, and if it is filled, 
+  it returns the value for that field
+  
+  This is a sub-function used in the fandocRoomPressureReport function
+*/
+(rpr, fieldname, ifEmpty:"") => do
+
+  if (rpr.has(fieldname)) 
+    return get(rpr, fieldname)
+  else
+    return ifEmpty
+end
+

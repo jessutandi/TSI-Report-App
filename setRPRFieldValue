@@ -1,0 +1,222 @@
+/* Sub-function of transferRoomPressureReport app.
+   Takes in the result of calling ioReadLines on the spreadsheet,
+   and does the actual filling up of the tags in the RPR object
+   from the data taken.
+   
+   The first item in the list is always the title of the field
+*/
+
+(rpr,list) => do
+  
+  title: split(split(list[0], ",")[0], "\"")[1]
+  rawdata: list.remove(0)
+  processed: []
+  rawdata.each item => do
+    processed= processed.add(split(split(item, ",")[1], "\"")[1])
+  end
+  
+  if (title == "Room Pressure Report") do
+    diff(readById(rpr), {date: processed[0],
+                         buildNum: processed[1], 
+                         roomNum: processed[2], 
+                         tsiModel: processed[3], 
+                         dim: processed[4], 
+                         con: processed[5]}).commit()
+    return 1
+  end
+  
+  if (title == "SETPOINTS") do
+    diff(readById(rpr), {setpoint: processed[0],
+                         remSetpoint: processed[1], 
+                         ventMinSet: processed[2], 
+                         coolingFlow: processed[3], 
+                         unoccupySet: processed[4], 
+                         maxSupSet: processed[5], 
+                         minExhSet: processed[6], 
+                         minOffset: processed[7], 
+                         maxOffset: processed[8], 
+                         tempSetpoint: processed[9], 
+                         unocTemp: processed[10]}).commit()
+    return 2
+  /* note: code below doesn't work in Axon :(
+  setpoints_tags: [setpoint, remSetpoint, ventMinSet, coolingFlow, unoccupySet, maxSupSet, minExhSet, minOffset, maxOffset, tempSetpoint, unocTemp]
+  counter:0
+  setpoints_tags.each tag => do
+    diff(read(rpr), {setpoints_tags[counter]: processed[counter]})
+    counter=counter+1
+    end
+    
+  */
+  end
+  
+  if (title == "ALARMS") do
+    diff(readById(rpr), {lowAlarm: processed[0],
+                         highAlarm: processed[1], 
+                         remLowAlm: processed[2], 
+                         remHighAlm: processed[3], 
+                         minSupAlm: processed[4], 
+                         maxExhAlm: processed[5], 
+                         alarmReset: processed[6], 
+                         audibleAlm: processed[7], 
+                         alarmDelay: processed[8], 
+                         muteTimeout: processed[9], 
+                         alarmRelay: processed[10]}).commit()                  
+    return 3
+  end
+  
+  if (title == "INTERFACE") do
+    diff(readById(rpr), {netProtocol: processed[0],
+                         netAddress: processed[1], 
+                         outputRange: processed[2], 
+                         outputSig: processed[3], 
+                         maxFlowOut: processed[4]}).commit()                  
+    return 4
+  end
+  
+
+  
+  if (title == "CONTROL") do
+    diff(readById(rpr), {speed: processed[0],
+                         sensitivity: processed[1], 
+                         controlSignal: processed[2], 
+                         supContDir: processed[3], 
+                         exhContDir: processed[4], 
+                         tempDir: processed[5], 
+                         reheatSig: processed[6], 
+                         kc: processed[7], 
+                         ti: processed[8], 
+                         kcOffset: processed[9], 
+                         tempDB: processed[10],
+                         tempTR: processed[11],
+                         tempTI: processed[12]}).commit()    
+    return 5
+  end
+  
+  if (title == "CONFIGURE") do
+    diff(readById(rpr), {unitsConfig: processed[0],
+                     exhConfig: processed[1], 
+                     accessCodes: processed[2], 
+                     macAddress: processed[3]}).commit()    
+    return 6
+  end
+  
+  if (title == "SYSTEM FLOW") do
+    diff(readById(rpr), {totalSupFlow: processed[0],
+                     totalExhFlow: processed[1], 
+                     offsetValue: processed[2], 
+                     supSetpoint: processed[3], 
+                     exhSetpoint: processed[4]}).commit() 
+    return 7 
+  end
+  
+  if (title == "INPUT CHECK") do
+    diff(readById(rpr), {sup1: processed[0],
+                         sup2: processed[1], 
+                         sup3: processed[2], 
+                         sup4: processed[3], 
+                         exh1: processed[4], 
+                         exh2: processed[5], 
+                         hood1: processed[6], 
+                         hood2: processed[7], 
+                         hood3: processed[8], 
+                         hood4: processed[9], 
+                         hood5: processed[10],
+                         hood6: processed[11],
+                         hood7: processed[12]}).commit() 
+    return 8
+  end
+  
+  if (title == "FLOW CHECK") do
+    diff(readById(rpr), {sp1FlowIn: processed[0],
+                         sp2FlowIn: processed[1], 
+                         sp3FlowIn: processed[2], 
+                         sp4FlowIn: processed[3], 
+                         ex1FlowIn: processed[4], 
+                         ex2FlowIn: processed[5], 
+                         hd1FlowIn: processed[6], 
+                         hd2FlowIn: processed[7], 
+                         hd3FlowIn: processed[8], 
+                         hd4FlowIn: processed[9], 
+                         hd5FlowIn: processed[10],
+                         hd6FlowIn: processed[11],
+                         hd7FlowIn: processed[12]}).commit()   
+    return 9
+  end
+  
+  if (title == "SUPPLY FLOW") do
+    diff(readById(rpr), {sp1DctArea: processed[0],
+                         sp2DctArea: processed[1],
+                         sp3DctArea: processed[2],
+                         sp4DctArea: processed[3],
+                         flowStaType_supflow: processed[4],
+                         topVelocity_supflow: processed[5],
+                         spLowSetp: processed[6],
+                         spHighSetp: processed[7],
+                         sp1LowCal: processed[8],
+                         sp1HighCal: processed[9],
+                         sp2LowCal: processed[10],
+                         sp2HighCal: processed[11],
+                         sp3LowCal: processed[12],
+                         sp3HighCal: processed[13],
+                         sp4LowCal: processed[14],
+                         sp4HighCal: processed[15]}).commit()
+    return 10
+  end                 
+  
+  if (title == "EXHAUST FLOW") do
+    diff(readById(rpr), {ex1DctArea: processed[0],
+                         ex2DctArea: processed[1],
+                         floStaType_exhflow: processed[2],
+                         topVelocity_exhflow: processed[3],
+                         exLowSetp: processed[4],
+                         exHighSetp: processed[5],
+                         ex1LowCal: processed[6],
+                         ex1HighCal: processed[7],
+                         ex2LowCal: processed[8],
+                         ex2HighCal: processed[9]}).commit()  
+    return 11
+  end
+  
+  if (title == "HOOD FLOW") do
+    diff(readById(rpr), {hd1DctArea: processed[0],
+                         hd2DctArea: processed[1],
+                         hd3DctArea: processed[2],
+                         hd4DctArea: processed[3],
+                         hd5DctArea: processed[4],
+                         hd6DctArea: processed[5],
+                         hd7DctArea: processed[6],
+                         flowStaType_hoodflow: processed[7],
+                         topVelocity_hoodflow: processed[8]}).commit()  
+    return 12
+  end
+  
+  if (title == "HOOD CAL") do
+    diff(readById(rpr), {hd1LowCal: processed[0],
+                         hd1HighCal: processed[1],
+                         hd2LowCal: processed[2],
+                         hd2HighCal: processed[3],
+                         hd3LowCal: processed[4],
+                         hd3HighCal: processed[5],
+                         hd4LowCal: processed[6],
+                         hd4HighCal: processed[7],
+                         hd5LowCal: processed[8],
+                         hd5HighCal: processed[9],
+                         hd6LowCal: processed[10],
+                         hd6HighCal: processed[11],
+                         hd7LowCal: processed[12],
+                         hd7HighCal: processed[13]}).commit()
+    return 13
+  end
+  
+  if (title == "SEQUENCE OF OPERATION") do
+    diff(readById(rpr), {sequenceOfOperation: processed[0]}).commit()
+    return 14
+  end
+  
+  if (title == "OTHER INFORMATION") do
+    diff(readById(rpr), {otherInformation : processed[0]}).commit()
+    return 15
+  end
+  
+end
+

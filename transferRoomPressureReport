@@ -1,0 +1,125 @@
+(googleSheetURL, zoneId, equipId) => do
+  /* takes in the whole url to the spreadsheet,
+  parses through it using regex to find the docID,
+  extracts data from all the sheet, calls ioReadLines
+  6 times because there are 6 sheets (setpoints, alarms, system flow, etc),
+  matches with the right siteID, creates the rpr object,
+  returns a print statement that says no site for that rpr exists if there is none */
+  
+  //Checks if link is a google sheet link, and sets sheet_id to be the Google Sheet's unique ID name
+  if (not contains(googleSheetURL, "https://docs.google.com/spreadsheets/d/")) 
+    return "Please enter a Google SpreadSheet link."
+  sheet_id: reFind(r"\/d\/(.*?)(\/|$)", googleSheetURL)
+
+  // Match the Room Pressure Report with a site and zone, creates a RPR object
+  rprinfolink: "https://docs.google.com/spreadsheets" + sheet_id + "gviz/tq?tqx=out:csv&sheet=Report details&range=B3:B5"
+  rprInfo: split(ioReadStr(``+ rprinfolink), "\"")
+  date: rprInfo[1]
+  building: rprInfo[3].padl(2, "0") 
+  room: rprInfo[5]
+  siteId: read(site and dis==building)->id
+  roomId: read(siteRef==siteId and zone and dis=="Rm "+room)->id
+  if (zoneId!=roomId) do
+    return "Room ID entered is not the same as the room ID in the spreadsheet!"
+    end
+  equipId: read(siteRef==siteId and equip and not zone and equipId)
+  
+  // Checks if a room pressure report with the same date, room number and building exists, and if there is, it will be overwritten.
+  if (read(roomPressureReport and siteRef==siteId and date==date and equipRef==roomId, false) != null) do
+    old_rpr_id: read(roomPressureReport and siteRef==siteId  and zoneRef==roomId and equipRef==equipId and date==date and equipRef==roomId)->id
+    diff(readById(old_rpr_id), {trash}).commit() 
+    end         
+  
+  diff(null, {roomPressureReport,
+              roomPressureReportRef,
+              siteRef: siteId, 
+              date: date, 
+              dis: roomId->dis + ", " + siteId->dis + ", " + date,
+              zoneRef: roomId,
+              equipRef: equipId}, 
+                                 {add}).commit()
+  rprId: read(roomPressureReport and siteRef==siteId and date==date and zoneRef==zoneId and equipRef==equipId)->id
+  
+  // Sheet names in Strings, needed to find the URL for that page
+  report_details: "Report_details"
+  first_page: "SP, AL, CON, INT, CONF"
+  second_page: "SYS SUP FLOW, CHECKS"
+  third_page: "EXH, HOOD FLOW, CAL"
+  fourth_page: "Notes"
+  
+  // Ranges for different fields
+  details_range: "A2:B8"
+  
+  setpoints_range: "A1:B13"
+  alarms_range: "D1:E13"
+  control_range: "G1:H15"
+  interface_range: "A15:B21"
+  configure_range: "D15:E20"
+  
+  sysflow_range: "A1:B6"
+  inpcheck_range: "D1:E14"
+  supflow_range: "G1:H17"
+  flowcheck_range: "A8:B21"
+  
+  exhflow_range: "A1:B11"
+  hoodflow_range: "D1:E10"
+  hoodcal_range: "G1:H15"
+  
+  note1_range: "A1:J7"
+  note2_range: "A9:J15"
+  
+  //Parse through the data in the spreadsheet using ioReadLines, and extracting the data for certain fields in the ranges and sheet names specified above
+  
+  docslink: "https://docs.google.com/spreadsheets"
+  csvout: "gviz/tq?tqx=out:csv"
+  page_name: "&sheet="
+  range: "&range="
+  
+  firstPgRanges: [setpoints_range, alarms_range, control_range, interface_range, configure_range]
+  secondPgRanges: [sysflow_range, inpcheck_range, supflow_range, flowcheck_range]
+  thirdPgRanges: [exhflow_range, hoodflow_range, hoodcal_range]
+  fourthPgRanges: [note1_range, note2_range]
+
+  /* Below, we combine all these variables to create querIES (google spreadsheet link for
+  each of these different fields) so we can call setRPRFieldValue on them to set the rpr object tags */
+  
+  //Report details
+  query1: docslink + sheet_id + csvout+ page_name + report_details + range + details_range
+  setRPRFieldValue(rprId, ioReadLines(``+query1))
+  
+  //SP, AL, CON, INT, CONF
+  firstPgRanges.each item => do
+    query2: docslink + sheet_id + csvout + page_name + first_page + range + item
+    setRPRFieldValue(rprId, ioReadLines(``+query2))
+  end
+ 
+  //SYS SUP FLOW, CHECKS
+  secondPgRanges.each item => do
+    query3: docslink + sheet_id + csvout + page_name + second_page + range + item
+    setRPRFieldValue(rprId, ioReadLines(``+query3))
+  end
+  
+  //EXH, HOOD FLOW & CAL
+  thirdPgRanges.each item => do
+    query4: docslink + sheet_id + csvout + page_name + third_page + range + item
+    setRPRFieldValue(rprId, ioReadLines(``+query4))
+  end
+  
+  //Notes
+  fourthPgRanges.each item => do
+    query5: docslink + sheet_id + csvout + page_name + fourth_page + range + item
+    setRPRFieldValue(rprId, ioReadLines(``+query5))
+  end
+  
+  return "Import successful!"
+  
+  
+  //ioReadLines(`https://docs.google.com/spreadsheets/d/1puo-F7kFmn4qJIqfuo3uol8OLjCwz5nMF8Egkyl37PA/gviz/tq?tqx=out:csv&sheet=SP, AL, CON, INT, CONF&range=E16:E20`)
+  
+  
+  //https://docs.google.com/spreadsheets/d/1puo-F7kFmn4qJIqfuo3uol8OLjCwz5nMF8Egkyl37PA/edit#gid=0
+  
+  //ioReadLines(`https://docs.google.com/spreadsheets/d/1puo-F7kFmn4qJIqfuo3uol8OLjCwz5nMF8Egkyl37PA/gviz/tq?tqx=out:csv&sheet=SP, AL, CON, INT, CONF&range=A1:B13`)
+  
+  
+end

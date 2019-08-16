@@ -1,0 +1,204 @@
+(roomPressureReportRef) => do
+  rpr: readById(roomPressureReportRef)
+  
+  doc: rpr->siteRef->dis + " "+ rpr->equipRef->dis + " " + findRPRFieldValue(rpr, "date") + "\n-----\n"
+  
+  //Location
+  doc=doc+"Lab Number and/or Location: **Building "+rpr->siteRef->dis+ "**\n\n Room **: "+rpr->equipRef->dis+"**\n\n"
+  
+  //Date
+  doc=doc+"Date: **" + 
+      findRPRFieldValue(rpr, "date", "Room Pressure Report date is unknown.") + "**\n\n"
+      
+  doc=doc+  "Below is a final configuration of the laboratory control system. \n\n"
+            + "---------- \n\n"
+  
+  //Setpoints
+  
+  sp_doc: "SETPOINTS \n*****\n" +
+          "*Setpoint: *" + findRPRFieldValue(rpr, "setpoint") + "\n\n" +
+          "*Rem Setpoint: *" + findRPRFieldValue(rpr, "remSetpoint") + "\n\n" +
+          "*Vent Min Set: *" + findRPRFieldValue(rpr, "ventMinSet") + "\n\n" +
+          "*Cooling Flow: *" + findRPRFieldValue(rpr, "coolingFlow") + "\n\n" +
+          "*Unoccupy Set: *" + findRPRFieldValue(rpr, "unoccupySet") + "\n\n" +
+          "*Max Supply Set: *" + findRPRFieldValue(rpr, "maxSupSet") + "\n\n" +
+          "*Min Exhaust Set: *" + findRPRFieldValue(rpr, "minExhSet") + "\n\n" +
+          "*Min Offset: *" + findRPRFieldValue(rpr, "minOffset") + "\n\n" +
+          "*Max Offset: *" + findRPRFieldValue(rpr, "maxOffset") + "\n\n" +
+          "*Temp Setpoint: *" + findRPRFieldValue(rpr, "tempSetpoint") + "\n\n" +
+          "*Unoccupied Temp: *" + findRPRFieldValue(rpr, "unocTemp") + "\n\n" +
+          "---------- \n\n "
+  
+  //Alarms
+  al_doc: "ALARMS \n****\n" +
+          "*Low Alarm: *" + findRPRFieldValue(rpr, "lowAlarm") + "\n\n" +
+          "*High Alarm: *" + findRPRFieldValue(rpr, "highAlarm") + "\n\n" +
+          "*Rem Low Alarm: *" + findRPRFieldValue(rpr, "remLowAlm") + "\n\n" +
+          "*Rem High Alarm: *" + findRPRFieldValue(rpr, "remHighAlm ") + "\n\n" +
+          "*Min Sup Alarm: *" + findRPRFieldValue(rpr, "minSupAlm") + "\n\n" +
+          "*Max Exh Alarm: *" + findRPRFieldValue(rpr, "maxExhAlm") + "\n\n" +
+          "*Alarm Reset: *" + findRPRFieldValue(rpr, "alarmReset") + "\n\n" +
+          "*Audible Alarm: *" + findRPRFieldValue(rpr, "audibleAlm") + "\n\n" +
+          "*Alarm Delay: *" + findRPRFieldValue(rpr, "alarmDelay") + "\n\n" +
+          "*Mute Timeout: *" + findRPRFieldValue(rpr, "muteTimeout") + "\n\n" +
+          "*Alarm Relay: *" + findRPRFieldValue(rpr, "alarmRelay") + "\n\n" +
+          "---------- \n\n "
+  
+  //Control
+  cont_doc: "CONTROL \n***\n" +
+            "*Speed: *" + findRPRFieldValue(rpr, "speed") + " bars \n\n" +
+            "*Sensitivity: *" + findRPRFieldValue(rpr, "sensitivity") + " bars \n\n" +
+            "*Control Signal: *" + findRPRFieldValue(rpr, "controlSignal") + "\n\n" +
+            "*Sup Cont Dir: *" + findRPRFieldValue(rpr, "supContDir") + "\n\n" +
+            "*Exh Cont Dir: *" + findRPRFieldValue(rpr, "exhContDir") + "\n\n" +
+            "*Temp Dir: *" + findRPRFieldValue(rpr, "tempDir") + "\n\n" +
+            "*Reheat Sign: *" + findRPRFieldValue(rpr, "reheatSig") + "\n\n" +
+            "*Kc: *" + findRPRFieldValue(rpr, "kc") + "\n\n" +
+            "*Ti: *" + findRPRFieldValue(rpr, "ti") + "\n\n" +
+            "*Kc Offset: *" + findRPRFieldValue(rpr, "kcOffset") + "\n\n" +
+            "*Temp DB: *" + findRPRFieldValue(rpr, "tempDB") + "\n\n" +
+            "*Temp TR: *" + findRPRFieldValue(rpr, "tempTR") + "\n\n" +
+            "*Temp TI: *" + findRPRFieldValue(rpr, "tempTI") + "\n\n" +
+            "---------- \n\n "
+  
+  //Interface
+  int_doc: "INTERFACE \n***\n" +
+           "*Net Protocol: *" + findRPRFieldValue(rpr, "netProtocol") + "\n\n" +
+           "*Net Address: *" + findRPRFieldValue(rpr, "netAddress") + "\n\n" +
+           "*Output Range: *" + findRPRFieldValue(rpr, "outputRange") + "\n\n" +
+           "*Output Sig: *" + findRPRFieldValue(rpr, "outputSig") + "\n\n" +
+           "*Max Flow Out: *" + findRPRFieldValue(rpr, "maxFlowOut") + "\n\n" +
+           "---------- \n\n "
+
+  //Configure
+  conf_doc:  "CONFIGURE \n***\n" +
+             "*Units: *" + findRPRFieldValue(rpr, "unitsConfig") + "\n\n" +
+             "*Exh Config: *" + findRPRFieldValue(rpr, "exhConfig") + "\n\n" +
+             "*Access Codes: *" + findRPRFieldValue(rpr, "accessCodes") + "\n\n" +
+             "*Mac Address: *" + findRPRFieldValue(rpr, "macAddress") + "\n\n" +
+             "---------- \n\n "
+  
+  //System Flow
+  sys_doc: "SYSTEM FLOW \n***\n" +
+           "*Total Sup Flow: *" + findRPRFieldValue(rpr, "totalSupFlow") + " bars \n\n" +
+           "*Total Exh Flow: *" + findRPRFieldValue(rpr, "totalExhFlow") + "\n\n" +
+           "*Offset Value: *" + findRPRFieldValue(rpr, "offsetValue") + "\n\n" +
+           "*Sup Setpoint: *" + findRPRFieldValue(rpr, "supSetpoint") + "\n\n" +
+           "*Exh Setpoint: *" + findRPRFieldValue(rpr, "exhSetpoint") + "\n\n" +
+           "---------- \n\n "  
+  
+  //Input Check
+  inp_doc: "INPUT CHECK \n****\n" +
+           "*SUP 1: *" + findRPRFieldValue(rpr, "sup1") + "\n\n" +
+           "*SUP 2: *" + findRPRFieldValue(rpr, "sup2") + "\n\n" +
+           "*SUP 3: *" + findRPRFieldValue(rpr, "sup3") + "\n\n" +
+           "*SUP 4: *" + findRPRFieldValue(rpr, "sup4") + "\n\n" +
+           "*EXH 1: *" + findRPRFieldValue(rpr, "exh1") + "\n\n" +
+           "*EXH 2: *" + findRPRFieldValue(rpr, "exh2") + "\n\n" +
+           "*HOOD 1: *" + findRPRFieldValue(rpr, "hood1") + "\n\n" +
+           "*HOOD 2: *" + findRPRFieldValue(rpr, "hood2") + "\n\n" +
+           "*HOOD 3: *" + findRPRFieldValue(rpr, "hood3") + "\n\n" +
+           "*HOOD 4: *" + findRPRFieldValue(rpr, "hood4") + "\n\n" +
+           "*HOOD 5: *" + findRPRFieldValue(rpr, "hood5") + "\n\n" +
+           "*HOOD 6: *" + findRPRFieldValue(rpr, "hood6") + "\n\n" +
+           "*HOOD 7: *" + findRPRFieldValue(rpr, "hood7") + "\n\n" +
+           "---------- \n\n "
+  
+  //Flow Check
+  flo_doc: "FLOW CHECK \n****\n" +
+           "*SP1 Flow In: *" + findRPRFieldValue(rpr, "sp1FlowIn") + "\n\n" +
+           "*SP2 Flow In: *" + findRPRFieldValue(rpr, "sp2FlowIn") + "\n\n" +
+           "*SP3 Flow In: *" + findRPRFieldValue(rpr, "sp3FlowIn") + "\n\n" +
+           "*SP4 Flow In: *" + findRPRFieldValue(rpr, "sp4FlowIn") + "\n\n" +
+           "*EX1 Flow In: *" + findRPRFieldValue(rpr, "ex1FlowIn") + "\n\n" +
+           "*EX2 Flow In: *" + findRPRFieldValue(rpr, "ex2FlowIn") + "\n\n" +
+           "*HD1 Flow In: *" + findRPRFieldValue(rpr, "hd1FlowIn") + "\n\n" +
+           "*HD2 Flow In: *" + findRPRFieldValue(rpr, "hd2FlowIn") + "\n\n" +
+           "*HD3 Flow In: *" + findRPRFieldValue(rpr, "hd3FlowIn") + "\n\n" +
+           "*HD4 Flow In: *" + findRPRFieldValue(rpr, "hd4FlowIn") + "\n\n" +
+           "*HD5 Flow In: *" + findRPRFieldValue(rpr, "hd5FlowIn") + "\n\n" +
+           "*HD6 Flow In: *" + findRPRFieldValue(rpr, "hd6FlowIn") + "\n\n" +
+           "*HD7 Flow In: *" + findRPRFieldValue(rpr, "hd7FlowIn") + "\n\n" +
+           "---------- \n\n "
+  
+  //Supply Flow
+  sup_doc: "SUPPLY FLOW \n****\n" +
+           "*SP1 Dct Area: *" + findRPRFieldValue(rpr, "sp1DctArea") + "\n\n" +
+           "*SP2 Dct Area: *" + findRPRFieldValue(rpr, "sp2DctArea") + "\n\n" +
+           "*SP3 Dct Area: *" + findRPRFieldValue(rpr, "sp3DctArea") + "\n\n" +
+           "*SP4 Dct Area: *" + findRPRFieldValue(rpr, "sp4DctArea") + "\n\n" +
+           "*Flow Sta Type: *" + findRPRFieldValue(rpr, "flowStaType_supflow") + "\n\n" +
+           "*Top Velocity: *" + findRPRFieldValue(rpr, "topVelocity_supflow") + "\n\n" +
+           "*SP Low Setp: *" + findRPRFieldValue(rpr, "spLowSetp") + "\n\n" +
+           "*SP High Setp: *" + findRPRFieldValue(rpr, "spHighSetp") + "\n\n" +
+           "*SP1 Low Cal: *" + findRPRFieldValue(rpr, "sp1LowCal") + "\n\n" +
+           "*SP1 High Cal: *" + findRPRFieldValue(rpr, "sp1HighCal") + "\n\n" +
+           "*SP2 Low Cal *" + findRPRFieldValue(rpr, "sp2LowCal") + "\n\n" +
+           "*SP2 High Cal *" + findRPRFieldValue(rpr, "sp2HighCal") + "\n\n" +
+           "*SP3 Low Cal: *" + findRPRFieldValue(rpr, "sp3LowCal") + "\n\n" +
+           "*SP3 High Cal: *" + findRPRFieldValue(rpr, "sp3HighCal") + "\n\n" +
+           "*SP4 Low Cal: *" + findRPRFieldValue(rpr, "sp4LowCal") + "\n\n" +
+           "*SP4 High Cal: *" + findRPRFieldValue(rpr, "sp4HighCal") + "\n\n" +
+           "---------- \n\n "
+           
+  //Exhaust Flow
+   exh_doc: "EXHAUST FLOW \n****\n" +
+            "*EX1 Dct Area: *" + findRPRFieldValue(rpr, "ex1DctArea") + "\n\n" +
+            "*EX2 Dct Area: *" + findRPRFieldValue(rpr, "ex2DctArea") + "\n\n" +
+            "*Flo Sta Type: *" + findRPRFieldValue(rpr, "floStaType_exhflow") + "\n\n" +
+            "*Top Velocity: *" + findRPRFieldValue(rpr, "topVelocity_exhflow") + "\n\n" +
+            "*EX Low Setp: *" + findRPRFieldValue(rpr, "exLowSetp") + "\n\n" +
+            "*EX High Setp *" + findRPRFieldValue(rpr, "exHighSetp") + "\n\n" +
+            "*EX1 Low Cal: *" + findRPRFieldValue(rpr, "ex1LowCal") + "\n\n" +
+            "*EX1 High Cal: *" + findRPRFieldValue(rpr, "ex1HighCal") + "\n\n" +
+            "*EX2 Low Cal: *" + findRPRFieldValue(rpr, "ex2LowCal") + "\n\n" +
+            "*EX2 High Cal: *" + findRPRFieldValue(rpr, "ex2HighCal") + "\n\n" +
+            "---------- \n\n "
+
+  //Hood Flow
+  hdf_doc: "HOOD FLOW \n****\n" +
+            "*HD1 Dct Area: *" + findRPRFieldValue(rpr, "hd1DctArea") + "\n\n" +
+            "*HD2 Dct Area: *" + findRPRFieldValue(rpr, "hd2DctArea") + "\n\n" +
+            "*HD3 Dct Area: *" + findRPRFieldValue(rpr, "hd3DctArea") + "\n\n" +
+            "*HD4 Dct Area: *" + findRPRFieldValue(rpr, "hd4DctArea") + "\n\n" +
+            "*HD5 Dct Area: *" + findRPRFieldValue(rpr, "hd5DctArea") + "\n\n" +
+            "*HD6 Dct Area: *" + findRPRFieldValue(rpr, "hd6DctArea") + "\n\n" +
+            "*HD7 Dct Area: *" + findRPRFieldValue(rpr, "hd7DctArea") + "\n\n" +
+            "*Flo Sta Type: *" + findRPRFieldValue(rpr, "flowStaType_hoodflow") + "\n\n" +
+            "*Top Velocity: *" + findRPRFieldValue(rpr, "topVelocity_hoodflow") + "\n\n" +
+            "---------- \n\n "
+  
+  //Hood Flow
+  hdc_doc: "HOOD CAL \n****\n" +
+            "*HD1 Low Cal: *" + findRPRFieldValue(rpr, "hd1LowCal") + "\n\n" +
+            "*HD1 High Cal: *" + findRPRFieldValue(rpr, "hd1HighCal") + "\n\n" +
+            "*HD2 Low Cal: *" + findRPRFieldValue(rpr, "hd2LowCal") + "\n\n" +
+            "*HD2 High Cal: *" + findRPRFieldValue(rpr, "hd2HighCal") + "\n\n" +
+            "*HD3 Low Cal: *" + findRPRFieldValue(rpr, "hd3LowCal") + "\n\n" +
+            "*HD3 High Cal: *" + findRPRFieldValue(rpr, "hd3HighCal") + "\n\n" +
+            "*HD4 Low Cal: *" + findRPRFieldValue(rpr, "hd4LowCal") + "\n\n" +
+            "*HD4 High Cal: *" + findRPRFieldValue(rpr, "hd4HighCal") + "\n\n" +
+            "*HD5 Low Cal: *" + findRPRFieldValue(rpr, "hd5LowCal") + "\n\n" +
+            "*HD5 High Cal: *" + findRPRFieldValue(rpr, "hd5HighCal") + "\n\n" +
+            "*HD6 Low Cal: *" + findRPRFieldValue(rpr, "hd6LowCal") + "\n\n" +
+            "*HD6 High Cal: *" + findRPRFieldValue(rpr, "hd6HighCal") + "\n\n" +
+            "*HD7 Low Cal: *" + findRPRFieldValue(rpr, "hd7LowCal") + "\n\n" +
+            "*HD7 High Cal: *" + findRPRFieldValue(rpr, "hd7HighCal") + "\n\n" +
+            "---------- \n\n "
+            
+  //Sequence of Operation
+  soo_doc: "SEQUENCE OF OPERATION \n****\n" +
+            findRPRFieldValue(rpr, "sequenceOfOperation") + "\n\n" +
+            "---------- \n\n "
+
+  //Other Information
+  oth_doc: "OTHER INFORMATION \n****\n" +
+            findRPRFieldValue(rpr, "otherInformation") + "\n\n" +
+            "---------- \n\n "
+            
+  doc = doc + sp_doc + al_doc + cont_doc + int_doc + conf_doc +
+        sys_doc + inp_doc + flo_doc + sup_doc + exh_doc + hdf_doc +
+        hdc_doc + soo_doc + oth_doc
+  return doc
+end
+
